@@ -25,7 +25,7 @@ The currently supported dataset loader is:
 
 - `c4`, using `allenai/c4` with the `realnewslike` validation split in streaming mode.
 
-You can easily integrate other dataasets into our codebase.
+You can easily integrate other datasets into our codebase.
 
 ## Repository Structure
 
