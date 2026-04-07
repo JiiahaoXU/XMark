@@ -35,14 +35,9 @@ def setup_logging(args):
     logPath = "logs"
     time_str = time.strftime("%Y-%m-%d-%H-%M")
 
-    fileName = "evaluation" if args.evaluation else "attack_%s_%.2f" % (args.attack_method, args.attack_p)
-    
-    if args.wm_method == 'blockmark':
-        wm_method = 'blockmark_augshard(%d)_augblock(%d)' % (args.augment_shards, args.augment_blocks)
-    else:
-        wm_method = args.wm_method
+    fileName = "evaluation"
 
-    dir_path = '%s/%s/bits_%d/%s_%s/delta_%.1f_token_%d_bs_%d/%s_%s/' % (logPath, args.dataset, args.bits, wm_method, args.model_name_or_path.replace('/', '_'), float(args.delta), args.num_token_detection, args.block_size, time_str, 'log')
+    dir_path = '%s/%s/bits_%d/%s_%s/delta_%.1f_token_%d_bs_%d/%s_%s/' % (logPath, args.dataset, args.bits, args.wm_method, args.model_name_or_path.replace('/', '_'), float(args.delta), args.num_token_detection, args.block_size, time_str, 'log')
     file_path = dir_path + 'backup_file/'
 
     if not os.path.exists(dir_path):
@@ -79,12 +74,6 @@ def setup_logging(args):
 
 def compute_perplexity_from_decoded_texts(prompts, responses, tokenizer, model, args, device="cuda"):
     
-    if args.dataset == 'cnn_dailymail':
-        return compute_perplexity_summarization(prompts, responses, tokenizer, model, args, device)
-    
-    elif args.dataset == 'writingprompts':
-        return compute_perplexity_from_storygeneration(prompts, responses, tokenizer, model, args, device)
-    
     model.eval()
     total_loss = 0.0
     total_tokens = 0
@@ -104,164 +93,6 @@ def compute_perplexity_from_decoded_texts(prompts, responses, tokenizer, model, 
         labels = input_ids.clone()
         labels[0, :prompt_length] = -100  # Do not compute loss on prompt
 
-        with torch.no_grad():
-            outputs = model(input_ids, labels=labels)
-            loss = outputs.loss  # Averaged over unmasked tokens
-
-        # Count number of tokens used for loss
-        num_effective_tokens = (labels != -100).sum().item()
-        total_loss += loss.item() * num_effective_tokens
-        total_tokens += num_effective_tokens
-
-    if total_tokens == 0:
-        return float("inf")  # Avoid division by zero
-
-    avg_loss = total_loss / total_tokens
-    perplexity = math.exp(avg_loss)
-    return perplexity
-
-
-def compute_perplexity_summarization(prompts, responses, tokenizer, model, args, device="cuda"):
-    model.eval()
-
-    if tokenizer.pad_token_id is None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-    if getattr(model.config, "pad_token_id", None) is None:
-        model.config.pad_token_id = tokenizer.pad_token_id
-
-    if getattr(args, "prompt_max_length", None) is None:
-        if hasattr(model.config, "max_position_embeddings"):
-            args.prompt_max_length = int(model.config.max_position_embeddings)
-        else:
-            args.prompt_max_length = 2048
-
-    total_loss = 0.0
-    total_tokens = 0
-
-    for prompt, response in zip(prompts, responses):
-        messages_prefix = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant specialized in summarization. "
-                    "You take a document and write a concise, faithful summary."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Please summarize the following article in a few sentences:\n\n{prompt}",
-            },
-        ]
-
-        prefix_text = tokenizer.apply_chat_template(
-            messages_prefix, tokenize=False, add_generation_prompt=True
-        )
-        prefix_enc = tokenizer(
-            prefix_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=args.prompt_max_length,
-            add_special_tokens=False,
-        )
-        prefix_len = prefix_enc["input_ids"].shape[1]
-
-        messages_full = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant specialized in summarization. "
-                    "You take a document and write a concise, faithful summary."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Please summarize the following article in a few sentences:\n\n{prompt}",
-            },
-            {"role": "assistant", "content": response},
-        ]
-        full_text = tokenizer.apply_chat_template(
-            messages_full, tokenize=False, add_generation_prompt=False
-        )
-        enc = tokenizer(
-            full_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=args.prompt_max_length,
-            add_special_tokens=False,
-        )
-
-        input_ids = enc["input_ids"].to(device)
-        attention_mask = enc.get("attention_mask", torch.ones_like(input_ids)).to(device)
-
-        labels = input_ids.clone()
-        seq_len = labels.shape[1]
-        eff_start = min(prefix_len, seq_len)  
-        labels[:, :eff_start] = -100
-
-        num_effective_tokens = (labels != -100).sum().item()
-        if num_effective_tokens == 0:
-            continue
-
-        with torch.no_grad():
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-            loss = outputs.loss  
-        total_loss += loss.item() * num_effective_tokens
-        total_tokens += num_effective_tokens
-
-    if total_tokens == 0:
-        return float("inf") 
-    avg_loss = total_loss / total_tokens
-    return math.exp(avg_loss)
-
-
-def compute_perplexity_from_storygeneration(prompts, responses, tokenizer, model, args, device="cuda"):
-    model.eval()
-    total_loss = 0.0
-    total_tokens = 0
-
-    for prompt, response in zip(prompts, responses):
-        
-        messages_prefix = [
-            {"role": "system", "content": "You are a helpful assistant that writes engaging and coherent stories."},
-            {"role": "user", "content": prompt},
-        ]
-        prefix_text = tokenizer.apply_chat_template(
-            messages_prefix, tokenize=False, add_generation_prompt=True
-        )
-        prefix_enc = tokenizer(
-            prefix_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=args.prompt_max_length,
-            add_special_tokens=False,
-        )
-        prefix_len = prefix_enc["input_ids"].shape[1]
-
-
-        messages_full = [
-            {"role": "system", "content": "You are a helpful assistant that writes engaging and coherent stories."},
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": response},
-        ]
-        full_text = tokenizer.apply_chat_template(
-            messages_full, tokenize=False, add_generation_prompt=False
-        )
-        enc = tokenizer(
-            full_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=args.prompt_max_length,
-            add_special_tokens=False,
-        )
-
-        input_ids = enc["input_ids"].to(device)
-        attention_mask = enc.get("attention_mask", torch.ones_like(input_ids)).to(device)
-
-        labels = input_ids.clone()
-        seq_len = labels.shape[1]
-        eff_start = min(prefix_len, seq_len)
-        labels[:, :eff_start] = -100
-        
         with torch.no_grad():
             outputs = model(input_ids, labels=labels)
             loss = outputs.loss  # Averaged over unmasked tokens

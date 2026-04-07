@@ -4,4 +4,4 @@
 
 **/slurm/
 
-*.json
+.codex
