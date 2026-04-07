@@ -2,6 +2,8 @@
 
 This repository contains the official implementation for the ACL'26 paper **"XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts"**.
 
+If you have any issues using this repo, feel free to contact Jiahao @ jiahaox@unr.edu.
+
 ## Overview
 
 We evaluate multi-bit text watermarking methods for LLM-generated text. The main pipeline:
