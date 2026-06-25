@@ -99,6 +99,7 @@ Logs and source-code backups are written under `logs/`.
 
 ## Citation
 
+We provide the following BibTeX entry for citation for your convenience.
 ```
 @inproceedings{xu-etal-2026-xmark,
     title = "{XM}ark: Reliable Multi-Bit Watermarking for {LLM}-Generated Texts",
