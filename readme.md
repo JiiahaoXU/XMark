@@ -99,4 +99,24 @@ Logs and source-code backups are written under `logs/`.
 
 ## Citation
 
-Coming soon
+```
+@inproceedings{xu-etal-2026-xmark,
+    title = "{XM}ark: Reliable Multi-Bit Watermarking for {LLM}-Generated Texts",
+    author = "Xu, Jiahao  and
+      Hu, Rui  and
+      Kotevska, Olivera  and
+      Zhang, Zikai",
+    editor = "Liakata, Maria  and
+      Moreira, Viviane P.  and
+      Zhang, Jiajun  and
+      Jurgens, David",
+    booktitle = "Proceedings of the 64th Annual Meeting of the {A}ssociation for {C}omputational {L}inguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.acl-long.672/",
+    pages = "14747--14763",
+    ISBN = "979-8-89176-390-6"
+}
+```
