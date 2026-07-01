@@ -1,11 +1,11 @@
 # XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts
 
-![Proceedings PDF Issue](https://img.shields.io/badge/Proceedings%20PDF-Figure%20Rendering%20Issue-red)
-
 > [!CAUTION]
 > **Proceedings PDF figure issue:** The ACL proceedings version of our paper has a figure text rendering issue, where some letters in the figure text are missing.
 >
-> Please use the corrected arXiv version for reading the figures: https://arxiv.org/abs/2604.05242.
+> Please use the [arXiv][paperlink] version for reading the figures.
+
+[paperlink]: https://arxiv.org/abs/2604.05242
 
 This repository contains the official implementation for the ACL'26 paper **"XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts"**.
 
