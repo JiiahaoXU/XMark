@@ -1,4 +1,4 @@
-name: xmark
+name: llmwm
 channels:
   - pytorch
   - defaults

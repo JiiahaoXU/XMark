@@ -43,17 +43,11 @@ You can easily integrate other datasets into our codebase.
 
 ## Installation
 
-We provide a copy of our environment in `xmark.yml`. You can create and activate the environment with:
+We provide a copy of our environment in `llmwm.yml`. You can create and activate the environment with:
 
 ```bash
-conda env create -f xmark.yml
-conda activate xmark
-```
-
-Some Hugging Face models, such as Llama-family models, require access approval and authentication. If needed, log in before running:
-
-```bash
-huggingface-cli login
+conda env create -f llmwm.yml
+conda activate llmwm
 ```
 
 ## Quick Start
