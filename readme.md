@@ -1,6 +1,6 @@
 # XMark, MajorMark and MajorMark+
 
-This repository hosts the official implementations of both papers:
+This repository hosts the official implementations of two of our papers:
 
 - **"XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts"**, ACL 2026.
 - **"Majority Bit-Aware Watermarking For Large Language Models"**, NeurIPS 2026, including MajorMark and MajorMark+.
