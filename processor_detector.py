@@ -5,6 +5,8 @@ from watermark_methods.depthd import DepthWProcessor, DepthWDetector
 from watermark_methods.stealthink.stealthink import SteathInkProcessor, SteathInkDetector
 from watermark_methods.loso.loso import LOSOProcessor, LOSODetector
 from watermark_methods.xmark import XMARKProcessor, XMARKDetector
+from watermark_methods.majormark import MajorMarkWatermarkLogitsProcessor, MajorMarkWatermarkDetector
+from watermark_methods.majormarkplus import MajorMarkPlusWatermarkLogitsProcessor, MajorMarkPlusWatermarkDetector
 
 
 def get_processor(wm_method, args, tokenizer, current_binary_code, device):
@@ -69,6 +71,25 @@ def get_processor(wm_method, args, tokenizer, current_binary_code, device):
                                                            args=args
                                                            )
         
+    elif wm_method == 'majormark':
+        watermark_processor = MajorMarkWatermarkLogitsProcessor(
+            vocab=list(tokenizer.get_vocab().values()),
+            delta=args.delta,
+            bits=args.bits,
+            current_binary_code=current_binary_code,
+            hash_key=args.hash_key,
+        )
+
+    elif wm_method == 'majormarkplus':
+        watermark_processor = MajorMarkPlusWatermarkLogitsProcessor(
+            vocab=list(tokenizer.get_vocab().values()),
+            delta=args.delta,
+            bits=args.bits,
+            block_size=args.block_size,
+            current_binary_code=current_binary_code,
+            hash_key=args.hash_key,
+        )
+
     elif wm_method == 'rsbh':
         payload = int(current_binary_code, 2)
         
@@ -157,6 +178,25 @@ def get_detector(wm_method, args, tokenizer, device):
             bits=args.bits,
             hash_key=args.hash_key,
         )
+
+    elif wm_method == 'majormark':
+        watermark_detector = MajorMarkWatermarkDetector(
+            vocab_size=len(tokenizer),
+            device=device,
+            tokenizer=tokenizer,
+            num_shards=args.bits,
+            hash_key=args.hash_key,
+        )
+
+    elif wm_method == 'majormarkplus':
+        watermark_detector = MajorMarkPlusWatermarkDetector(
+            vocab_size=len(tokenizer),
+            device=device,
+            tokenizer=tokenizer,
+            bits=args.bits,
+            block_size=args.block_size,
+            hash_key=args.hash_key,
+        )
         
     elif wm_method == 'rsbh':
         
@@ -212,6 +252,8 @@ def get_decoded_message(wm_method, watermark_detector, watermarked_texts):
     elif wm_method == 'loso':
         decoded_message = watermark_detector.detect(text="\n".join(watermarked_texts))
     elif wm_method == 'xmark':
+        decoded_message = watermark_detector.detect(watermarked_texts)
+    elif wm_method in ('majormark', 'majormarkplus'):
         decoded_message = watermark_detector.detect(watermarked_texts)
     elif wm_method == 'rsbh':
         decoded_message = watermark_detector.detect(watermarked_texts)

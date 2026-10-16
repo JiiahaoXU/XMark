@@ -1,15 +1,15 @@
 #!/bin/bash
 
 num_prompts=2
-num_users=50
+num_users=20
 base_model=meta-llama/Llama-2-7b-hf
-device=0
+device=0,1,2,3
 
-deltas=(2 4)
+deltas=(2)
 bits=(8)
-tokens_for_detection_per_prompt=(75)
+tokens_for_detection_per_prompt=(75) # The T (token budget) will be this number multiplied by the number of prompts. For example, if you have 2 prompts and 75 tokens for detection per prompt, the total token budget will be 150.
 datasets=(c4)
-methods=(xmark)
+methods=(majormarkplus)
 
 # enumerate all combinations of parameters and run the script
 for delta in "${deltas[@]}"; do

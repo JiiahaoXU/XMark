@@ -121,7 +121,7 @@ def parse_args():
         "--block_size",
         type=int,
         default=-1,
-        help="the size of the message block",
+        help="Message block size for MajorMark+; -1 uses half of the message length.",
     )
     parser.add_argument(
         "--hash_key",
@@ -135,4 +135,9 @@ def parse_args():
     )
 
     args = parser.parse_args()
+    if args.wm_method == 'majormarkplus':
+        if args.block_size == -1:
+            args.block_size = args.bits // 2
+        if args.bits < 2 or args.block_size < 2 or args.bits % args.block_size != 0:
+            parser.error("MajorMark+ requires block_size >= 2 and bits divisible by block_size.")
     return args

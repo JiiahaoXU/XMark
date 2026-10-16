@@ -1,6 +1,11 @@
-# XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts
+# XMark and MajorMark: Multi-Bit Watermarking for LLM-Generated Texts
 
-This repository contains the official implementation for the ACL'26 paper **"XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts"**.
+This repository hosts the official implementations of both papers:
+
+- **"XMark: Reliable Multi-Bit Watermarking for LLM-Generated Texts"**, ACL 2026.
+- **"Majority Bit-Aware Watermarking For Large Language Models"**, NeurIPS 2026, including MajorMark and MajorMark+.
+
+The MajorMark implementation has been merged into this XMark repository. Readers of either paper can use this repository to run the methods under a shared generation and evaluation pipeline.
 
 If you have any issues using this repo or want to discuss anything related to our work, feel free to contact Jiahao @ jiahaox@unr.edu.
 
@@ -17,6 +22,8 @@ The current code supports the following watermark methods through `--wm_method`:
 
 - `xmark` (Ours)
 - `loso` (Ours)
+- `majormark` (Ours)
+- `majormarkplus` (Ours)
 - `mpac`
 - `rsbh`
 - `cycleshift`
@@ -67,7 +74,9 @@ CUDA_VISIBLE_DEVICES=0 python main.py \
     --evaluation
 ```
 
-You can also use the provided script:
+To run MajorMark or MajorMark+, replace `--wm_method xmark` above with `--wm_method majormark` or `--wm_method majormarkplus`. For MajorMark+, the default `--block_size -1` uses half the message length; use an integer such as `--block_size 4` to set it explicitly.
+
+You can also use the provided script and set its `methods` array to the methods you want to compare, for example `methods=(xmark majormark majormarkplus)`:
 
 ```bash
 bash run.sh
@@ -77,10 +86,12 @@ Logs and source-code backups are written under `logs/`.
 
 ## Key Arguments
 
-- `--wm_method`: watermark method, for example `xmark`, `mpac`, or `loso`.
+- `--wm_method`: watermark method, for example `xmark`, `majormark`, or `majormarkplus`.
 - `--dataset`: dataset name. 
 - `--model_name_or_path`: Hugging Face model name or local model path.
 - `--bits`: number of bits for the message.
+- `--block_size`: MajorMark+ block size, at least 2 and a divisor of `bits`; `-1` (default) uses `bits // 2`. Each block must contain both 0 and 1.
+- `--hash_key`: watermark hash key, shared by the processor and detector for XMark, MajorMark, and MajorMark+.
 - `--delta`: watermarking bias.
 - `--num_users`: number of users to evaluate.
 - `--num_prompts`: number of prompts per user.
@@ -93,9 +104,10 @@ Logs and source-code backups are written under `logs/`.
 
 ## Citation
 
-We provide the following BibTeX entry for citation for your convenience.
+We provide the BibTeX records of our papers for your convenience!
+
 ```
-@inproceedings{xu-etal-2026-xmark,
+@inproceedings{xmark,
     title = "{XM}ark: Reliable Multi-Bit Watermarking for {LLM}-Generated Texts",
     author = "Xu, Jiahao  and
       Hu, Rui  and
@@ -114,4 +126,15 @@ We provide the following BibTeX entry for citation for your convenience.
     pages = "14747--14763",
     ISBN = "979-8-89176-390-6"
 }
+
+@misc{majormark,
+      title={Majority Bit-Aware Watermarking For Large Language Models}, 
+      author={Jiahao Xu and Rui Hu and Olivera Kotevska and Zikai Zhang},
+      year={2026},
+      eprint={2508.03829},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.03829}, 
+}
+
 ```
