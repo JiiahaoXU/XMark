@@ -1,4 +1,4 @@
-# XMark and MajorMark: Multi-Bit Watermarking for LLM-Generated Texts
+# XMark, MajorMark and MajorMark+
 
 This repository hosts the official implementations of both papers:
 
