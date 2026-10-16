@@ -63,6 +63,7 @@ def text_generation(prompt, args, model=None, device=None, tokenizer=None, curre
     torch.manual_seed(args.generation_seed)
     output_wo_watermark = LLM_without_watermarking(**token_inputs)
 
+    torch.manual_seed(args.generation_seed)
     output_w_watermark_ = LLM_with_watermarking(**token_inputs)                                                                                               
 
     logit = output_w_watermark_[1]
@@ -151,7 +152,7 @@ def running(args, model, tokenizer, device, ds_iterator, code_dict):
         generated_texts[user_id] = {
             "prompts": prompts,
             "watermarked_texts": watermarked_texts,
-            "non_watermared_texts": non_watermarked_texts
+            "non_watermarked_texts": non_watermarked_texts
         }
     
         if args.evaluation:

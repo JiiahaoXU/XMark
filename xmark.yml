@@ -1,4 +1,4 @@
-name: llm
+name: xmark
 channels:
   - pytorch
   - defaults
@@ -236,4 +236,3 @@ dependencies:
       - websockets==15.0.1
       - xxhash==3.5.0
       - yarl==1.20.0
-prefix: /home/jiahaox/miniconda3/envs/llm

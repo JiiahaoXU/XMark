@@ -65,6 +65,7 @@ def get_processor(wm_method, args, tokenizer, current_binary_code, device):
                                                            delta=args.delta,
                                                            bits=args.bits,
                                                            current_binary_code=current_binary_code,
+                                                           hash_key=args.hash_key,
                                                            args=args
                                                            )
         
